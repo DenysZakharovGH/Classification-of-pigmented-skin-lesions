@@ -1,8 +1,5 @@
-
 from ultralytics import YOLO
 
+from app.app_config import settings
 
-from config import PROJECT_ROOT
-
-
-model = YOLO(f"{PROJECT_ROOT}/runs/detect/train2/weights/best.pt")
+model = YOLO(settings.cnn.model_path)
