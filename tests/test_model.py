@@ -1,12 +1,10 @@
-import os
 import time
 from glob import glob
 import cv2
-from pathlib import Path
 from ultralytics import YOLO
 
 from app.utils import draw_detection
-from config import image_format, PROJECT_ROOT
+from train.config import image_format, PROJECT_ROOT
 
 model = YOLO(f"{PROJECT_ROOT}/runs/detect/train9/weights/best.pt")
 

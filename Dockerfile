@@ -19,10 +19,12 @@ RUN pip install --upgrade pip \
     --extra-index-url https://download.pytorch.org/whl/cu117 \
  && pip install --no-cache-dir -r requirements.txt
 
+RUN pip uninstall -y numpy \
+ && pip install --no-cache-dir numpy==1.26.4
 
 COPY app/ app/
 COPY frontend/ frontend/
-COPY config.py/ config.py/
+COPY models/ models/
 
 EXPOSE 8000
 

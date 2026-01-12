@@ -1,8 +1,7 @@
-import os
 import torch
 from ultralytics import YOLO
 
-from config import YOLO_settings_file_path
+from train.config import YOLO_settings_file_path
 
 # Load the model.
 #model = YOLO('yolov8s.pt')

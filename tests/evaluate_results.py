@@ -1,6 +1,6 @@
 from ultralytics import YOLO
 
-from config import PROJECT_ROOT
+from train.config import PROJECT_ROOT
 
 folder_path = f"{PROJECT_ROOT}/runs/detect/train9/weights"
 
