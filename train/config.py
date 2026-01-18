@@ -3,9 +3,9 @@ from pathlib import Path
 
 dir_path = os.getcwd()
 
-PROJECT_ROOT = Path(__file__).resolve().parents[0]
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
-YOLO_settings_file_path = f'{dir_path}/train/dataset/custom_data.yaml'
+YOLO_settings_file_path = f'{PROJECT_ROOT}/train/dataset_HAM/custom_data.yaml'
 dataset_dir = f"{dir_path}/dataset"
 dataset_image_dir = dataset_dir + "/images/"
 dataset_labels_dir = dataset_dir + "/labels/"

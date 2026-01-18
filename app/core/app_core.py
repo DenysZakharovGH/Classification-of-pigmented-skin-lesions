@@ -1,6 +1,7 @@
+import asyncio
 import base64
 
-from fastapi import FastAPI, UploadFile, File, APIRouter, Request
+from fastapi import FastAPI, UploadFile, File, APIRouter, Request, HTTPException
 from fastapi.responses import JSONResponse
 import cv2
 import numpy as np
@@ -10,7 +11,7 @@ import io
 from starlette.responses import HTMLResponse
 
 from app.core.app_config import settings, FRONTEND_STORAGE
-from app.model import model, predict_async
+from app.model import model, predict_async, classify_crop_async
 from app.utils import draw_detection
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -25,27 +26,39 @@ async def predict_image(request: Request, file: UploadFile = File(...)):
     # Read image
     image_bytes = await file.read()
     image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-
     img = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
 
-    processed_img = img.copy()
+    if img.shape[0] > settings.cnn.max_image_h_w or img.shape[1] > settings.cnn.max_image_h_w :
+        raise HTTPException(status_code=400, detail=f"Image too large, max size: {settings.cnn.max_image_h_w}")
 
+    processed_img = img.copy()
     results = await predict_async(image)
 
     r = results[0]
-    detections = []
+
+    # Prepare async classification tasks for each detected object
+    tasks = []
+    for bbox in  results[0].boxes.xyxy:  # xyxy = [x1, y1, x2, y2]
+        x1, y1, x2, y2 = bbox.cpu().numpy()
+        crop = image.crop((x1, y1, x2, y2))
+        tasks.append(classify_crop_async(crop))
+
+    classifications = await asyncio.gather(*tasks)
+
+    YOLO_ResNet_results = []
+
     if r.boxes is not None:
         boxes = r.boxes.xyxy.cpu().numpy()
         scores = r.boxes.conf.cpu().numpy()
         classes = r.boxes.cls.cpu().numpy().astype(int)
 
-        for (x1, y1, x2, y2), score, cls in zip(boxes, scores, classes):
-            label = f"{model.names[cls]} {score:.2f}"
-            processed_img = draw_detection(img, (x1, y1, x2, y2), label, score, model.names[cls])
+        for (x1, y1, x2, y2), (pred_class, prob), conf, cls_id in zip(boxes, classifications, scores, classes):
 
-            detections.append({
-                "class": model.names[cls],
-                "confidence": float(score),
+            processed_img = draw_detection(img, (x1, y1, x2, y2), "", float(prob), "default")
+
+            YOLO_ResNet_results.append({
+                "class": f"{pred_class}",
+                "confidence": float(prob),
             })
 
     _, buffer = cv2.imencode(".jpg", processed_img)
@@ -53,7 +66,7 @@ async def predict_image(request: Request, file: UploadFile = File(...)):
     img_base64 = base64.b64encode(img_bytes).decode("utf-8")
     return JSONResponse({
         "filename": file.filename,
-        "detections": detections,
+        "detections": YOLO_ResNet_results,
         "annotated_image": img_base64
     })
 

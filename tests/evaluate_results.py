@@ -2,13 +2,13 @@ from ultralytics import YOLO
 
 from train.config import PROJECT_ROOT
 
-folder_path = f"{PROJECT_ROOT}/runs/detect/train9/weights"
+folder_path = f"/home/denys/PycharmProjects/Classification-of-pigmented-skin-lesions/models"
 
 dataset_image_dir = f"{PROJECT_ROOT}" + "/train/dataset/images"
 
-model_paths = [f"{folder_path}/best.pt",
-               f"{folder_path}/epoch90.pt",
-               f"{folder_path}/last.pt"]
+model_paths = [
+               #f"{folder_path}/best_precision_86_recall_82_yolo.pt",
+               f"{folder_path}/best_precision_67_recall_77.pt"]
 test_images = dataset_image_dir + "/val/"
 data_yaml = f"{PROJECT_ROOT}" + "/train/dataset/custom_data.yaml"
 

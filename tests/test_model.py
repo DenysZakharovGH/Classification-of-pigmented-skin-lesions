@@ -1,12 +1,18 @@
 import time
 from glob import glob
 import cv2
+import torch
 from ultralytics import YOLO
 
 from app.utils import draw_detection
 from train.config import image_format, PROJECT_ROOT
 
-model = YOLO(f"{PROJECT_ROOT}/runs/detect/train9/weights/best.pt")
+
+model = YOLO(f"/home/denys/PycharmProjects/Classification-of-pigmented-skin-lesions/models/best_precision_86_recall_82_yolo.pt")
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
+model.eval()
 
 dataset_image_dir = f"{PROJECT_ROOT}" + "/train/dataset/images"
 

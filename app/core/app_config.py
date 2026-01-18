@@ -21,6 +21,7 @@ COLORS = {
     "MEL": (255, 0, 255),  # melanoma → magenta
     "NV": (0, 255, 255),
     "VASC": (128, 128, 255),
+    "default": (255, 0, 255),
 }
 
 class RunConfig(BaseModel):
@@ -33,14 +34,23 @@ class CNNConfig(BaseModel):
     rate_limits: str = "500/minute"
     max_token_limits: int = 400
     user_input_limits: int = 100
-    model_path: str = None
+    model_path_yolo: str = None
+    model_path_resnet: str = None
+    max_image_h_w: int = 2500
 
     def __init__(self, **data):
         super().__init__(**data)
-        models = glob(f"{MODELS_PATH}/*.pt")
+        models = glob(f"{MODELS_PATH}/*yolo.pt")
         if not models:
-            raise ValueError(f"No models at {MODELS_PATH} found")
-        self.model_path = models[0]
+            raise ValueError(f"No models at {MODELS_PATH}/*yolo.pt found")
+        print(f"Found. {models[0]} selected")
+        self.model_path_yolo = models[0]
+
+        models = glob(f"{MODELS_PATH}/*resnet.pt")
+        if not models:
+            raise ValueError(f"No models at {MODELS_PATH}/*resnet.pt found")
+        print(f"Found. {models[0]} selected")
+        self.model_path_resnet = models[0]
 
 
 class Setting(BaseSettings):

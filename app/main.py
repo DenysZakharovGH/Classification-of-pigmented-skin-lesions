@@ -12,6 +12,6 @@ app.add_middleware(RequestLoggingMiddleware)
 
 if __name__ == "__main__":
     uvicorn.run("main:app",
-                workers=4,
+                #workers=4,
                 host=settings.run.host,
                 port=settings.run.port)

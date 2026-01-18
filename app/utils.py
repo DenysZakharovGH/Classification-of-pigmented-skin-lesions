@@ -1,4 +1,6 @@
 import cv2
+import torch
+from torchvision import models
 
 from app.core.app_config import COLORS
 
